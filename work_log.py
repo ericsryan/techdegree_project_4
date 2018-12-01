@@ -107,6 +107,22 @@ def login():
                     continue
     return username
 
+
+def nav_bar(options):
+    """Generate a navigation bar to be used while viewing logs."""
+    d = '[D]elete'
+    e = '[E]dit'
+    m = '[M]ain Menu'
+    n = '[N]ext'
+    p = '[P]revious'
+    s = '[S]earch Menu'
+    bar = []
+    for letter in options:
+        bar.append(eval(letter))
+        bar.append(' | ')
+    del bar[-1]
+    print(''.join(bar))
+
 #######
 #Menus#
 #######
@@ -147,9 +163,11 @@ def search_menu():
             break
         print("Do you want to search by:\n"
               "a) Exact Date\n"
-              "b) Range of Dates\n"
-              "c) Exact Search\n"
-              "d) Regex Pattern\n\n"
+              "b) Date Range"
+              "c) Time Spent\n"
+              "d) Search Term"
+              "e) Username List"
+              "f) Enter Username\n\n"
               "[M]ain Menu\n"
               )
         search_selection = input("> ").lower().strip()
@@ -158,9 +176,13 @@ def search_menu():
         elif search_selection == 'b':
             search_range()
         elif search_selection == 'c':
-            exact_search()
+            search_time()
         elif search_selection == 'd':
-            search_regex()
+            search_term()
+        elif search_selection == 'e':
+            search_list()
+        elif search_selection == 'f':
+            search_username()
         elif search_selection == 'm':
             clear_screen()
             break
@@ -196,9 +218,63 @@ def add_log():
 
 
 def view_log(logs):
-    """Search in existing entries"""
+    """Display selected logs."""
     clear_screen()
-    
+    index = 0
+    counter = 1
+    while True:
+        print("Date: {}\n".format(datetime.datetime.strftime(logs[index].task_date, '%m/%d/%Y')) +
+              "Title: {}\n".format(logs[index].task_title) +
+              "Time Spent: {}\n".format(logs[index].task_time) +
+              "Notes: {}\n\n".format(logs[index].task_notes) +
+              "Result {} of {}".format(counter, logs.select().count())
+              )
+        if logs.select().count() == 1:
+            nav_options = 'des'
+        elif counter <= 1:
+            nav_options = 'neds'
+        elif counter > 1 and counter < logs.select().count():
+            nav_options = 'pneds'
+        elif counter == logs.select().count():
+            nav_options = 'peds'
+        nav_bar(nav_options)
+        menu_option = input("> ").lower().strip()
+        if menu_option not in nav_options or menu_option == '':
+            clear_screen()
+            print("Sorry, that is not a valid selection.\n")
+        elif menu_option == 'n':
+            clear_screen()
+            counter += 1
+            index += 1
+        elif menu_option == 'p':
+            clear_screen()
+            counter -= 1
+            index -= 1
+        elif menu_option == 'd':
+            logs[index].delete_instance()
+            index = 0
+            counter = 1
+            clear_screen()
+            next = input("The log has been deleted. " +
+                         "Press 'Enter' to continue.")
+            clear_screen()
+            if logs.select().count() == 0:
+                index = 0
+                counter = 1
+                clear_screen()
+                break
+        elif menu_option == 'e':
+            edit_log(logs[index])
+            index = 0
+            counter = 1
+            clear_screen()
+            next = input("The log has been edited. " +
+                         "Press 'Enter' to continue.")
+            clear_screen()
+            break
+        elif menu_option == 's':
+            clear_screen()
+            break
 
 
 def search_date():
@@ -232,13 +308,45 @@ def search_date():
             break
 
 
-
-
-def delete_log(log):
-    """Delete a log from the database."""
-    if input("Are you sure? Y/N: ").lower() == 'y':
-        log.delete_instance()
-        print("The log has been deleted.")
+def edit_log(log):
+    """Edit the selected work log."""
+    while True:
+        clear_screen()
+        print("Which field would you like to edit?\n\n" +
+              "  a) Date\n" +
+              "  b) Title\n" +
+              "  c) Time\n" +
+              "  d) Notes\n")
+        selection = input("> ").lower().strip()
+        if selection not in 'abcd':
+            print("That is not a valid selection.\n")
+            continue
+        elif selection == 'a':
+            clear_screen()
+            print("Original Date: " +
+                  datetime.datetime.strftime(log.task_date, '%m/%d/%Y') +
+                  "\n\nWhat would you like the date to be?\n")
+            new_date = get_date("> ")
+            log.update(task_date=new_date).execute()
+        elif selection == 'b':
+            clear_screen()
+            print("Original Title: " + log.task_title +
+                  "\n\nWhat would you like the title to be?\n")
+            new_title = input("> ")
+            log.update(task_title=new_title).execute()
+        elif selection == 'c':
+            clear_screen()
+            print("Original Time: " + str(log.task_time) +
+                  "\n\nWhat would you like the time to be?\n")
+            new_time = input("> ")
+            log.update(task_time=new_time).execute()
+        elif selection == 'd':
+            clear_screen()
+            print("Original Notes: " + log.task_notes +
+                  "\n\nWhat would you like the notes to be?\n")
+            new_notes = input("> ")
+            log.update(task_notes=new_notes).execute()
+        break
 
 
 main_menu_options = OrderedDict([
