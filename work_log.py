@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""Enter work logs and search existing logs.
+
+Users have the option of entering a work log or searching existing logs. They
+also have the option of editing or deleteing existing entries.
+"""
 
 from collections import OrderedDict
 import datetime
@@ -163,10 +168,10 @@ def search_menu():
             break
         print("Do you want to search by:\n"
               "a) Exact Date\n"
-              "b) Date Range"
+              "b) Date Range\n"
               "c) Time Spent\n"
-              "d) Search Term"
-              "e) Username List"
+              "d) Search Term\n"
+              "e) Username List\n"
               "f) Enter Username\n\n"
               "[M]ain Menu\n"
               )
@@ -193,6 +198,9 @@ def search_menu():
                   )
             continue
 
+###################################
+#Log Creation and Search Functions#
+###################################
 
 def add_log():
     """Add new entry"""
@@ -308,6 +316,149 @@ def search_date():
             break
 
 
+def search_range():
+    """Search logs by providing a date range."""
+    clear_screen()
+    print("What beggining date would you like to use for the range? " +
+          "(MM/DD/YYYY)\n")
+    begin_range = get_date("> ")
+    clear_screen()
+    while True:
+        print("What ending date would you like to use for the range? " +
+              "(MM/DD/YYYY)\n")
+        end_range = get_date("> ")
+        if begin_range > end_range:
+            clear_screen()
+            print("The ending date must be after " +
+                  "{}.".format(datetime.datetime.strftime(begin_range, '%m/%d/%Y')))
+        else:
+            break
+    logs = Log.select().where((Log.task_date >= begin_range) &
+                                    (Log.task_date <= end_range))
+    if logs.select().count() == 0:
+        clear_screen()
+        return_to_menu = input("There are no logs in that date range.\n" +
+                               "You will be returned to the search menu.\n" +
+                               "Press 'Enter' to continue.")
+        clear_screen()
+    else:
+        view_log(logs)
+
+
+def search_time():
+    """Search logs by time spent."""
+    clear_screen()
+    while True:
+        try:
+            print("Search the logs by the amount of time spent on the "
+                  "task.\nEnter the number of minutes.")
+            time_spent = int(input("> "))
+            break
+        except ValueError:
+            clear_screen()
+            print("The time must be entered using numerical digits.")
+            continue
+    logs = Log.select().where(Log.task_time == time_spent)
+    if logs.select().count() == 0:
+        clear_screen()
+        return_to_menu = input("There are no logs lasting that amount of time.\n" +
+                               "You will be returned to the search menu.\n" +
+                               "Press 'Enter' to continue.")
+        clear_screen()
+    else:
+        view_log(logs)
+
+
+def search_term():
+    """Search logs by search term."""
+    clear_screen()
+    print("Search logs by entering a search term.")
+    term = input("> ")
+    logs = Log.select().where((Log.task_title.contains(term)) |
+                              (Log.task_notes.contains(term)))
+    if logs.select().count() == 0:
+        clear_screen()
+        return_to_menu = input("There are no logs matching that term.\n" +
+                               "You will be returned to the search menu.\n" +
+                               "Press 'Enter' to continue.")
+        clear_screen()
+    else:
+        view_log(logs)
+
+
+def search_list():
+    """Search using a list of usernames."""
+    username_list = []
+    logs = Log.select().order_by(Log.username)
+    for username in logs:
+        if username.username not in username_list:
+            username_list.append(username.username)
+    clear_screen()
+    while True:
+        try:
+            print("For which username would you like to see the work logs?\n")
+            counter = 1
+            for username in username_list:
+                print("  " + str(counter) + ") " + username)
+                counter += 1
+            username_selection = int(input("\n> ")) - 1
+        except ValueError:
+                clear_screen()
+                print("Sorry, that is not a valid selection.")
+                continue
+        if username_selection not in range(0, (len(username_list))):
+            clear_screen()
+            print("Sorry, that is not a valid selection.")
+            continue
+        else:
+            view_log(Log.select().where(Log.username ==
+                                        username_list[username_selection]))
+            break
+
+
+def search_username():
+    """Search logs by a username supplied by the user."""
+    username_list = []
+    print("What user's logs would you like to view?")
+    username = input("> ")
+    logs = Log.select().where(Log.username.contains(username)).order_by(Log.username)
+    for username in logs:
+        if username.username not in username_list:
+            username_list.append(username.username)
+    if len(username_list) == 0:
+        clear_screen()
+        return_to_menu = input("There are no logs from that user.\n" +
+                               "You will be returned to the search menu.\n" +
+                               "Press 'Enter' to continue.")
+        clear_screen()
+    elif len(username_list) == 1:
+        logs = Log.select().where(Log.username.contains(username_list[0]))
+        view_log(logs)
+    elif len(username_list) > 1:
+        clear_screen()
+        while True:
+            try:
+                print("For which username would you " +
+                      "like to see the work logs?\n")
+                counter = 1
+                for username in username_list:
+                    print("  " + str(counter) + ") " + username)
+                    counter += 1
+                username_selection = int(input("\n> ")) - 1
+            except ValueError:
+                    clear_screen()
+                    print("Sorry, that is not a valid selection.")
+                    continue
+            if username_selection not in range(0, (len(username_list))):
+                clear_screen()
+                print("Sorry, that is not a valid selection.")
+                continue
+            else:
+                view_log(Log.select().where(Log.username ==
+                                            username_list[username_selection]))
+                break
+
+
 def edit_log(log):
     """Edit the selected work log."""
     while True:
@@ -353,8 +504,6 @@ main_menu_options = OrderedDict([
     ('a', add_log),
     ('b', search_menu),
 ])
-
-
 
 if __name__ == '__main__':
     initialize()
