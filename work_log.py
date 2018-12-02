@@ -101,16 +101,34 @@ def login():
             clear_screen()
             while True:
                 try:
-                    print("Enter the username that you would like to use.")
-                    username = input("> ")
-                    User.create(username=username)
-                    break
+                    if username:
+                        clear_screen()
+                        break
+                    else:
+                        print("Enter the username that you would like to use.")
+                        username = input("> ")
+                        User.create(username=username)
+                        break
                 except IntegrityError:
                     clear_screen()
-                    print("That username is already in use. "
-                          "Please try a different username.")
-                    continue
+                    while True:
+                        print("That username is already in use. " +
+                              "Would you like to login with\nthis username? " +
+                              "Press 'Enter' to continue with this username " +
+                              "or\nenter the new username you would like " +
+                              "to register.")
+                        continue_login = input("> ")
+                        if continue_login == '':
+                            break
+                        else:
+                            try:
+                                User.create(username=username)
+                                break
+                            except IntegrityError:
+                                clear_screen()
+                                continue
     return username
+
 
 
 def nav_bar(options):
