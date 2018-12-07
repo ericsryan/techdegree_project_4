@@ -10,18 +10,141 @@ import datetime
 import os
 import sys
 
-from log import add_log
-from log import edit_log
-from model import Log
-from model import User
 from peewee import *
-from utils import clear_screen
-from utils import get_date
-from utils import initialize
-from utils import login
-from utils import nav_bar
+
+db = SqliteDatabase('logs.db')
+
+class Log(Model):
+    username = CharField(max_length=100)
+    task_date = DateTimeField(default=datetime.datetime.now)
+    task_title = CharField(max_length=255)
+    task_time = IntegerField()
+    task_notes = TextField()
+
+    class Meta:
+        database = db
+
+class User(Model):
+    username = CharField(max_length=100, unique=True)
+
+    class Meta:
+        database = db
+
+###########
+#Utilities#
+###########
+
+def clear_screen():
+    """Clear screen for better readability."""
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
+def get_date(question):
+    """Validate and return date input."""
+    while True:
+        # Format date_input for consistancy and flexibility
+        # Validate date input
+        formatted_date = ''
+        try:
+            date_input = input(question)
+            for character in date_input:
+                if character == '-':
+                    formatted_date += '/'
+                else:
+                    formatted_date += character
+            formatted_date = datetime.datetime.strptime(formatted_date,
+                                                        '%m/%d/%Y')
+        except ValueError:
+            clear_screen()
+            print("The date was not formatted correctly. Please try again.")
+        else:
+            break
+    return formatted_date
+
+
+def initialize():
+    """Create the database and table if they do not exist."""
+    db.connect()
+    db.create_tables([Log, User], safe=True)
+
+
+def login():
+    """Login with username or sign up for a new username."""
+    clear_screen()
+    print("Enter your username or press 'Enter' to register new username")
+    username = input("> ")
+    while True:
+        if username:
+            try:
+                clear_screen()
+                User.get(User.username == username)
+                next_screen = input("{}, welcome ".format(username) +
+                                    "to the Work Log program. " +
+                                    "Press 'Enter' to continue. ")
+                break
+            except Exception:
+                clear_screen()
+                print("That username does not exist. "
+                      "Would you like to register it now? Y/N")
+                selection = input("> ").lower().strip()
+                if selection == 'y':
+                    clear_screen()
+                    User.create(username=username)
+                    next_screen = input("{} is ".format(username) +
+                                        "now your username. " +
+                                        "Press 'Enter' to continue. ")
+                    break
+                elif selection == 'n':
+                    clear_screen()
+                    continue
+        else:
+            clear_screen()
+            while True:
+                try:
+                    if username:
+                        clear_screen()
+                        break
+                    else:
+                        print("Enter the username that you would like to use.")
+                        username = input("> ")
+                        User.create(username=username)
+                        break
+                except IntegrityError:
+                    clear_screen()
+                    while True:
+                        print("That username is already in use. " +
+                              "Would you like to login with\nthis username? " +
+                              "Press 'Enter' to continue with this username " +
+                              "or\nenter the new username you would like " +
+                              "to register.")
+                        continue_login = input("> ")
+                        if continue_login == '':
+                            break
+                        else:
+                            try:
+                                User.create(username=username)
+                                break
+                            except IntegrityError:
+                                clear_screen()
+                                continue
+    return username
+
+
+
+def nav_bar(options):
+    """Generate a navigation bar to be used while viewing logs."""
+    d = '[D]elete'
+    e = '[E]dit'
+    m = '[M]ain Menu'
+    n = '[N]ext'
+    p = '[P]revious'
+    s = '[S]earch Menu'
+    bar = []
+    for letter in options:
+        bar.append(eval(letter))
+        bar.append(' | ')
+    del bar[-1]
+    print(''.join(bar))
 
 #######
 #Menus#
@@ -97,6 +220,28 @@ def search_menu():
 #Log Creation and Search Functions#
 ###################################
 
+def add_log():
+    """Add new entry"""
+    clear_screen()
+    task_date = get_date("What is the date of the task? (MM/DD/YYYY): ")
+    clear_screen()
+    task_title = input("Title of the task: ")
+    clear_screen()
+    task_time = int(input("Time spent (rounded minutes): "))
+    clear_screen()
+    task_notes = input("Notes (Optional, you can leave this empty): ")
+    if task_notes == '':
+        task_notes = 'None'
+    clear_screen()
+    Log.create(username=username,
+               task_date=task_date,
+               task_title=task_title,
+               task_time=task_time,
+               task_notes=task_notes)
+    next_screen = input("The entry has been added. " +
+                        "Press enter to return to the main menu")
+    clear_screen()
+
 
 def view_log(logs):
     """Display selected logs."""
@@ -118,7 +263,7 @@ def view_log(logs):
             nav_options = 'pneds'
         elif counter == logs.select().count():
             nav_options = 'peds'
-        print(nav_bar(nav_options))
+        nav_bar(nav_options)
         menu_option = input("> ").lower().strip()
         if menu_option not in nav_options or menu_option == '':
             clear_screen()

@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import patch
+import mock
 import unittest
 
 from utils import get_date
