@@ -1,0 +1,9 @@
+Login Screen
+    |
+Main Menu
+    |
+Logger  |   Finder  |   Quit
+              |
+Date    |     Range     |   Time    |   Term    |   UN List     |   UN Entry
+
+                                    View Logs

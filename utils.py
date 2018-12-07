@@ -18,14 +18,12 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def get_date():
+def get_date(question):
     """Validate input and return date as a datetime object."""
     while True:
-        # Format date_input for consistancy and flexibility
-        # Validate date input
         formatted_date = ''
         try:
-            date_input = input("> ")
+            date_input = input(question)
             for character in date_input:
                 if character == '-':
                     formatted_date += '/'
@@ -114,12 +112,12 @@ def login():
 def nav_bar(options):
     """Generate a navigation bar to be used while viewing logs."""
     menu_options = [
-        ('d', '[D]elete'),
-        ('e', '[E]dit'),
-        ('m', '[M]ain Menu'),
-        ('n', '[N]ext'),
         ('p', '[P]revious'),
-        ('s', '[S]earch Menu')
+        ('n', '[N]ext'),
+        ('e', '[E]dit'),
+        ('d', '[D]elete'),
+        ('s', '[S]earch Menu'),
+        ('m', '[M]ain Menu')
         ]
     bar = []
     for option in menu_options:
