@@ -1,10 +1,10 @@
 from peewee import *
 
-db = SqliteDatabase('diary.db')
+db = SqliteDatabase('logs.db')
 
 
 class User(Model):
-    username = CharField()
+    username = CharField(unique=True)
 
     class Meta:
         database = db
@@ -17,7 +17,10 @@ class Log(Model):
     task_time = IntegerField()
     task_notes = TextField()
 
+    class Meta:
+        database = db
+
 def initialize():
     """Create the database and the table if they don't exist."""
     db.connect()
-    db.create_tables([Entry], safe=True)
+    db.create_tables([User, Log], safe=True)
