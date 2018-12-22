@@ -41,6 +41,7 @@ def get_date(question):
             break
     return converted_date
 
+
 def validate_minutes(question):
     """Validate and return number of minutes."""
     while True:
@@ -48,9 +49,7 @@ def validate_minutes(question):
             minutes = int(input(question))
         except ValueError:
             clear_screen()
-            print("Sorry, you did not enter a number. Please enter the " +
-                  "number of minutes you spent on the task."
-                  )
+            print("Sorry, you must enter the number of minutes as an integer.")
             continue
         else:
             break
