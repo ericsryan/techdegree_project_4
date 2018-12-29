@@ -152,7 +152,7 @@ def search_term():
     clear_screen()
     search_term = '%' + input("Enter the term that you would like to use " +
                               "to search the logs.\n> ") + '%'
-    search_logs = Log.select().where(Log.task_title ** search_term or
+    search_logs = Log.select().where(Log.task_title ** search_term |
                                      Log.task_notes ** search_term)
     return search_logs
 

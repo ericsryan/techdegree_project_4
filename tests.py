@@ -3,6 +3,9 @@ import datetime
 import mock
 import unittest
 
+from peewee import *
+from unittest.mock import patch
+
 from log import add_log
 from log import get_log_input
 from log import get_username
@@ -13,7 +16,6 @@ from login import store_username
 from models import initialize
 from models import Log
 from models import User
-from peewee import *
 from search import build_datetime_list
 from search import build_username_list
 from search import get_logs
@@ -29,12 +31,12 @@ from search import search_term
 from search import search_time
 from search import search_username_list
 from search import search_username_term
-from unittest.mock import patch
 from utils import convert_to_datetime
 from utils import format_date
 from utils import get_date
 from utils import validate_minutes
 from viewer import Viewer
+
 
 MODELS = [User, Log]
 
@@ -403,9 +405,11 @@ class ViewerTests(unittest.TestCase):
 
     def test_view_logs2(self):
         new_viewer = Viewer(Log.select())
+        expected = 'eds'
         with patch('viewer.input', return_value='s'):
-            actual = new_viewer.view_logs()
-            self.assertEqual(actual, True)
+            new_viewer.view_logs()
+            actual = new_viewer.menu_options
+            self.assertEqual(actual, expected)
 
     def test_view_logs3(self):
         Log.create(username='username',
@@ -414,9 +418,11 @@ class ViewerTests(unittest.TestCase):
                    task_time=60,
                    task_notes='Notes')
         new_viewer = Viewer(Log.select())
+        expected = 'neds'
         with patch('viewer.input', return_value='s'):
-            actual = new_viewer.view_logs()
-            self.assertEqual(actual, True)
+            new_viewer.view_logs()
+            actual = new_viewer.menu_options
+            self.assertEqual(actual, expected)
 
     def test_view_logs4(self):
         Log.create(username='username',
@@ -432,9 +438,11 @@ class ViewerTests(unittest.TestCase):
         new_viewer = Viewer(Log.select())
         new_viewer.index += 1
         new_viewer.counter += 1
+        expected = 'pneds'
         with patch('viewer.input', return_value='s'):
-            actual = new_viewer.view_logs()
-            self.assertEqual(actual, True)
+            new_viewer.view_logs()
+            actual = new_viewer.menu_options
+            self.assertEqual(actual, expected)
 
     def test_view_logs5(self):
         Log.create(username='username',
@@ -450,9 +458,11 @@ class ViewerTests(unittest.TestCase):
         new_viewer = Viewer(Log.select())
         new_viewer.index += 2
         new_viewer.counter += 2
+        expected = 'peds'
         with patch('viewer.input', return_value='s'):
-            actual = new_viewer.view_logs()
-            self.assertEqual(actual, True)
+            new_viewer.view_logs()
+            actual = new_viewer.menu_options
+            self.assertEqual(actual, expected)
 
 
 if __name__ == '__main__':

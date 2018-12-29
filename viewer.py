@@ -22,7 +22,7 @@ class Viewer(object):
         self.counter = 1
 
     def view_logs(self):
-        """Logic to dispay work logs."""
+        """Logic to display work logs."""
         clear_screen()
         self.keep_going = True
         while self.keep_going:
@@ -31,22 +31,17 @@ class Viewer(object):
                            " Press 'Enter' to return to the search menu. ")
                 clear_screen()
                 return False
-                break
             else:
                 print(self.draw_log())
                 if len(self.logs) == 1:
-                    self.menu_bar('eds')
-                    return True
+                    self.menu_options = 'eds'
                 elif self.counter == 1:
-                    self.menu_bar('neds')
-                    return True
-                elif (self.counter > 1 and self.counter <
-                      len(self.logs)):
-                    self.menu_bar('pneds')
-                    return True
+                    self.menu_options = 'neds'
+                elif (self.counter > 1 and self.counter < len(self.logs)):
+                    self.menu_options = 'pneds'
                 elif self.counter == len(self.logs):
-                    self.menu_bar('peds')
-                    return True
+                    self.menu_options = 'peds'
+                self.menu_bar(self.menu_options)
 
     def draw_log(self):
         """Format and draw the work log."""
@@ -85,14 +80,18 @@ class Viewer(object):
             self.index -= 1
             self.counter -= 1
             clear_screen()
+            return True
         elif menu_selection == 'n':
             self.index += 1
             self.counter += 1
             clear_screen()
+            return True
         elif menu_selection == 'e':
             self.edit_log()
+            return True
         elif menu_selection == 'd':
             self.delete_log()
+            return True
         elif menu_selection == 's':
             clear_screen()
             self.keep_going = False
@@ -111,7 +110,6 @@ class Viewer(object):
                 clear_screen()
                 print("That is not a valid selection.")
                 return False
-                continue
             elif selection == 'a':
                 clear_screen()
                 print("Original Date: " +

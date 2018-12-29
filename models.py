@@ -15,7 +15,7 @@ class User(Model):
 
 
 class Log(Model):
-    """Table that hold the work logs."""
+    """Table that holds the work logs."""
     username = CharField()
     task_date = DateTimeField()
     task_title = CharField()
