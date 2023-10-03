@@ -1,21 +1,28 @@
-# techdegree_project_4
-_________________________________________
+# Work Log w/ Database
 
-Techdegree Project 4-Work Log w/ Database
-_________________________________________
+This program was developed to implement skills that were learned for using the datetime module, SQLite database, and for utilizing REGEX. This program will allow a user to enter work logs into a SQLite database and search them using various methods.
 
-Introduction
+## Installation
 
-This program was developed to implement skills that were learned for using databases in Python, using peewee, and unittesting. This program will allow a user to enter work logs into an SqliteDatabase and search them using various methods.
+1. Clone the repository to your local machine:
+```bash
+git clone https://github/ericsryan/techdegree_project_4.git
+```
 
+2. Navigate to the project directory:
+```bash
+cd techdegree_project_4
+```
 
-Installation
+3. Run the main program file `work_log.py` in the terminal or console:
+```bash
+python3 work_log.py
+```
 
-Once the techdegree_project_4 folder has been downloaded, the main program can be run in the terminal or console. The main program file is work_log.py. The program can be run from a virtual environment by entering 'pipenv run python work_log.py'. This will ensure that the program can be run regardless of the dependancies of the program.
+## Usage
 
+The user has the option to add a new entry, search existing entries, or quit the program. If the user would like to add a new entry they will supply a date, title, time spent, and optional notes for their log. The user is able to search existing logs by date, setting a date range, search term, or REGEX pattern. The user may delete or edit a log from the log view screen.
 
-Using the Program
-
-The user can login using their own username. They then have the option to add a new entry, search existing entries, or quit the program. If the user would like to add a new entry they will supply a date, title, time spent, and optional notes for their log. The user is able to search existing logs by date, setting a date range, search by time, search term, username list, or search usernames. The user may delete or edit a log from the log view screen.
+## Credits
 
 Thank you Kenneth Love, and the rest of Team Treehouse!
